@@ -1,0 +1,50 @@
+name: Deploy Production
+
+on:
+  push:
+    branches: [ production ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.7.0
+        with:
+          access_token: ${{ github.token }}
+
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: sed env
+        run: |
+          export VAULT_ADDR='http://127.0.0.1:8200'
+          vault login ${{ secrets.VAULT_TOKEN }}
+          vault kv get -field=RENDER_ENV_FILE secret/pro > .env
+      - run: npm install
+      - name: Deploy render
+        run: |
+          chmod +x deploy-autoscale.sh
+          sh deploy-autoscale.sh
+          cp -r $(pwd) ../husble-render
+          tar -cf prod-husble-render.tar ../husble-render
+          aws s3 cp prod-husble-render.tar s3://husble-artifacts/prod/
+          # rsync  -hrz --delete  -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" ./ centos@172.31.42.125:/srv/husble-render/
+          # ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null centos@172.31.42.125 "pm2 restart husble-render"
+        shell: bash
+      - name: Cache multiple paths
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/cache
+            !~/cache/exclude
+            **/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
