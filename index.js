@@ -10,16 +10,14 @@ const numCluster = os;
 const PORT = 8081;
 const app = express();
 
-const { imagePreviewProcess } = require('./queues/render_preview');
-const { imageProductionProcess } = require('./queues/render_production');
-
 const router = require('./routers');
+
 const fileUpload = {
   limits: { fileSize: 50 * 1024 * 500024 },
 };
 
 if (cluster.isMaster) {
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < numCluster; i++) {
     cluster.fork();
     console.log(`The Worker number: ${i + 1} is alive`);
   }
@@ -34,10 +32,6 @@ if (cluster.isMaster) {
 
   app.use(express.urlencoded({ extended: false, limit: '50mb' }));
   app.use(express.json({ type: '*/*', limit: '50mb' }));
-
-  // queue
-  imagePreviewProcess();
-  imageProductionProcess();
 
   app.use('/api', router);
   app.get('/a', (req, res) => {

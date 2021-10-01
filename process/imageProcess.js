@@ -1,10 +1,7 @@
 const HFont = require('../canvas/utils/HFont');
 const fabric = require('fabric').fabric;
 const fs = require('fs');
-const Queue = require('bull');
 
-const renderQueue = new Queue('render_Preview', process.env.REDIS_SERVER);
-const renderQueueProd = new Queue('render_Production', process.env.REDIS_SERVER);
 const { registerFont, createCanvas } = require('canvas');
 
 const { pushImgS3 } = require('../utils/uploadS3');
@@ -142,22 +139,6 @@ exports.imageProcess = async (job, done) => {
               })
               .catch((err) => {
                 console.log(err, 'error upload to S3');
-                // requeue if error
-                if (rectOptions.typeCanvas) {
-                  renderQueueProd.add('render_Production', rectOptions.data, {
-                    delay: 5000,
-                    attempts: 5,
-                    backoff: 2,
-                    removeOnComplete: false,
-                  });
-                } else {
-                  renderQueue.add('render_Preview', rectOptions.data, {
-                    delay: 2000,
-                    attempts: 5,
-                    backoff: 2,
-                    removeOnComplete: false,
-                  });
-                }
               });
 
             this.canvas.setBackgroundImage(myImg, this.canvas.renderAll.bind(this.canvas));
@@ -282,22 +263,6 @@ exports.imageProcess = async (job, done) => {
   } catch (error) {
     const { objects } = job.data;
     const object = objects.find((item) => item.type === 'backgroundPro');
-
-    if (object.typeCanvas) {
-      renderQueueProd.add('render_Production', job.data, {
-        delay: 5000,
-        attempts: 5,
-        backoff: 2,
-        removeOnComplete: false,
-      });
-    } else {
-      renderQueue.add('render_Preview', job.data, {
-        delay: 2000,
-        attempts: 5,
-        backoff: 2,
-        removeOnComplete: false,
-      });
-    }
 
     // log error
     console.log(error, 'error objects json');
