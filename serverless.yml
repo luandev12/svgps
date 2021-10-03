@@ -1,4 +1,4 @@
-service: express-serverless
+service: convert-file
 
 provider:
   name: aws
@@ -10,6 +10,8 @@ provider:
 
 functions:
   hello:
+    memorySize: 256
+    timeout: 120
     handler: index.server
     events:
       - http: ANY /

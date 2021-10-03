@@ -14,12 +14,12 @@ const fileUpload = {
 app.use(cors());
 app.use(FileUpload(fileUpload));
 
-app.post('/svg/:type', (req, res) => {
+app.post('/svg/:type', async (req, res) => {
   const { type } = req.params;
   const files = req.files.file;
   const url = `https://vector.express/api/v2/public/convert/svg/librsvg`;
 
-  if (type === 'ps' || type === 'eps') {
+  if (type === 'ps' || type === 'eps' || type === 'pdf') {
     axios({
       url: `${url}/${type}`,
       method: 'POST',
@@ -36,7 +36,36 @@ app.post('/svg/:type', (req, res) => {
       })
       .catch((err) => {
         console.log(err.response);
+        res.status(400).json({ message: 'error' });
       });
+  }
+
+  if (type === 'all') {
+    const types = ['pdf', 'ps', 'eps'];
+    const result = [];
+
+    for (const type of types) {
+      await axios({
+        url: `${url}/${type}`,
+        method: 'POST',
+        data: files.data,
+      })
+        .then(async ({ data }) => {
+          await result.push({
+            id: data.id,
+            inputUrl: data.inputUrl,
+            resultUrl: data.resultUrl,
+            time: data.time,
+            format: data.format,
+          });
+        })
+        .catch((err) => {
+          console.log(err.response);
+          res.status(400).json({ message: 'error' });
+        });
+    }
+
+    res.status(200).json(result);
   }
 });
 

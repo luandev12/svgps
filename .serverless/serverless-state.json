@@ -1,8 +1,8 @@
 {
   "service": {
-    "service": "express-serverless",
+    "service": "convert-file",
     "serviceObject": {
-      "name": "express-serverless"
+      "name": "convert-file"
     },
     "provider": {
       "name": "aws",
@@ -90,7 +90,7 @@
           "HelloLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/express-serverless-production-hello"
+              "LogGroupName": "/aws/lambda/convert-file-production-hello"
             }
           },
           "IamRoleLambdaExecution": {
@@ -118,7 +118,7 @@
                     "Fn::Join": [
                       "-",
                       [
-                        "express-serverless",
+                        "convert-file",
                         "production",
                         "lambda"
                       ]
@@ -135,7 +135,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/express-serverless-production*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/convert-file-production*:*"
                           }
                         ]
                       },
@@ -146,7 +146,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/express-serverless-production*:*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/convert-file-production*:*:*"
                           }
                         ]
                       }
@@ -159,7 +159,7 @@
                 "Fn::Join": [
                   "-",
                   [
-                    "express-serverless",
+                    "convert-file",
                     "production",
                     {
                       "Ref": "AWS::Region"
@@ -177,13 +177,13 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/express-serverless/production/1633226463143-2021-10-03T02:01:03.143Z/express-serverless.zip"
+                "S3Key": "serverless/convert-file/production/1633230103844-2021-10-03T03:01:43.844Z/convert-file.zip"
               },
               "Handler": "index.server",
               "Runtime": "nodejs12.x",
-              "FunctionName": "express-serverless-production-hello",
-              "MemorySize": 1024,
-              "Timeout": 6,
+              "FunctionName": "convert-file-production-hello",
+              "MemorySize": 256,
+              "Timeout": 120,
               "Environment": {
                 "Variables": {
                   "NODE_ENV": "production"
@@ -200,20 +200,20 @@
               "HelloLogGroup"
             ]
           },
-          "HelloLambdaVersionm6Wd9BESU6tASnm1kVym08zZfAlJ8qfNjpV2pyEILk": {
+          "HelloLambdaVersion295NatOhCICHXWbvWEhOxqChqmS8bvHnPQcSiQED0": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "HelloLambdaFunction"
               },
-              "CodeSha256": "uXz1gxDn2/POsOgp9iJGyZ7+barGgQ05Ld8wNRWY2Qk="
+              "CodeSha256": "HKt//wzK/jnTwoujtBIoI1R4G+fMpVSGURy8HVv52ik="
             }
           },
           "ApiGatewayRestApi": {
             "Type": "AWS::ApiGateway::RestApi",
             "Properties": {
-              "Name": "production-express-serverless",
+              "Name": "production-convert-file",
               "EndpointConfiguration": {
                 "Types": [
                   "EDGE"
@@ -326,7 +326,7 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayDeployment1633226456674": {
+          "ApiGatewayDeployment1633230097684": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -383,16 +383,16 @@
               "Ref": "ServerlessDeploymentBucket"
             },
             "Export": {
-              "Name": "sls-express-serverless-production-ServerlessDeploymentBucketName"
+              "Name": "sls-convert-file-production-ServerlessDeploymentBucketName"
             }
           },
           "HelloLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "HelloLambdaVersionm6Wd9BESU6tASnm1kVym08zZfAlJ8qfNjpV2pyEILk"
+              "Ref": "HelloLambdaVersion295NatOhCICHXWbvWEhOxqChqmS8bvHnPQcSiQED0"
             },
             "Export": {
-              "Name": "sls-express-serverless-production-HelloLambdaFunctionQualifiedArn"
+              "Name": "sls-convert-file-production-HelloLambdaFunctionQualifiedArn"
             }
           },
           "ServiceEndpoint": {
@@ -418,7 +418,7 @@
               ]
             },
             "Export": {
-              "Name": "sls-express-serverless-production-ServiceEndpoint"
+              "Name": "sls-convert-file-production-ServiceEndpoint"
             }
           }
         }
@@ -518,6 +518,8 @@
     "pluginsData": {},
     "functions": {
       "hello": {
+        "memorySize": 256,
+        "timeout": 120,
         "handler": "index.server",
         "events": [
           {
@@ -527,13 +529,12 @@
             "http": "ANY {proxy+}"
           }
         ],
-        "name": "express-serverless-production-hello",
+        "name": "convert-file-production-hello",
         "package": {},
-        "memory": 1024,
-        "timeout": 6,
+        "memory": 256,
         "runtime": "nodejs12.x",
         "vpc": {},
-        "versionLogicalId": "HelloLambdaVersionm6Wd9BESU6tASnm1kVym08zZfAlJ8qfNjpV2pyEILk"
+        "versionLogicalId": "HelloLambdaVersion295NatOhCICHXWbvWEhOxqChqmS8bvHnPQcSiQED0"
       }
     },
     "configValidationMode": "warn",
@@ -557,10 +558,10 @@
       }
     },
     "isDashboardMonitoringPreconfigured": false,
-    "artifact": "/Users/macbookpro/Downloads/Nemo/svgps/.serverless/express-serverless.zip"
+    "artifact": "/Users/macbookpro/Downloads/Nemo/svgps/.serverless/convert-file.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/express-serverless/production/1633226463143-2021-10-03T02:01:03.143Z",
-    "artifact": "express-serverless.zip"
+    "artifactDirectoryName": "serverless/convert-file/production/1633230103844-2021-10-03T03:01:43.844Z",
+    "artifact": "convert-file.zip"
   }
 }
