@@ -1,0 +1,22 @@
+service: express-serverless
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${self:custom.secrets.NODE_ENV}
+  region: ap-southeast-1
+  environment:
+    NODE_ENV: ${self:custom.secrets.NODE_ENV}
+
+functions:
+  hello:
+    handler: index.server
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
+
+plugins:
+  - serverless-offline
+
+custom:
+  secrets: ${file(secrets.json)}
